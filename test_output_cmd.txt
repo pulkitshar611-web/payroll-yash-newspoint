@@ -1,0 +1,5 @@
+[DB] MySQL Pool initialized for pop_db on localhost
+Testing paySalary logic...
+Test failed: Error: Employer not found
+    at testPaySalary (C:\Kiaan\Payroll1\backend\test_pay.js:22:41)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)

@@ -1,0 +1,6 @@
+[DB] MySQL Pool initialized for pop_db on localhost
+Testing paySalary logic...
+[DB] Audit Logs table checked/created
+Salary record created: 5
+Transaction record created: 3
+Test successful, rolled back.
