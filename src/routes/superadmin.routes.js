@@ -58,6 +58,14 @@ router.post('/company-requests/:id/reject', superadminController.rejectCompanyRe
 router.put('/company-requests/:id/payment-status', superadminController.updateCompanyRequestPaymentStatus);
 router.delete('/company-requests/:id', superadminController.deleteCompanyRequest);
 
+// User Request Management
+router.get('/user-requests', superadminController.getAllUserRequests);
+router.delete('/user-requests/:id', superadminController.deleteUserRequest);
+router.post('/user-requests/:id/delete', superadminController.deleteUserRequest);
+router.get('/user-requests/:id/delete-test', superadminController.deleteUserRequest);
+// Fallback for missing ID
+router.delete('/user-requests', (req, res) => res.status(400).json({ success: false, message: 'Request ID is required for deletion.' }));
+
 // Profile
 router.put('/profile', superadminController.updateProfile);
 router.get('/profile', superadminController.getProfile);

@@ -2037,6 +2037,61 @@ const activateSubscription = async (req, res, next) => {
   }
 };
 
+/**
+ * Get All User Requests
+ */
+const getAllUserRequests = async (req, res, next) => {
+  try {
+    const query = 'SELECT * FROM user_requests ORDER BY created_at DESC';
+    const [requests] = await db.query(query);
+
+    res.status(200).json({
+      success: true,
+      data: requests
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Delete User Request
+ */
+const deleteUserRequest = async (req, res, next) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    console.log(`[SuperAdmin API] Received delete request for ID: ${req.params.id} (Parsed: ${id})`);
+
+    if (isNaN(id)) {
+      console.warn(`[SuperAdmin API] Delete failed: Invalid ID produced from ${req.params.id}`);
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid request ID'
+      });
+    }
+
+    const query = 'DELETE FROM user_requests WHERE id = ?';
+    const [result] = await db.query(query, [id]);
+
+    console.log(`[SuperAdmin API] Delete result for ID ${id}: ${result.affectedRows} rows affected`);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Request not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Request deleted successfully'
+    });
+  } catch (error) {
+    console.error(`[SuperAdmin API] CRITITCAL ERROR during delete for ID ${req.params.id}:`, error);
+    next(error);
+  }
+};
+
 module.exports = {
   getDashboard,
   createAdmin,
@@ -2081,5 +2136,9 @@ module.exports = {
   getAllPayments,
   getAllSubscriptions,
   activateSubscription,
+
+  // User Requests
+  getAllUserRequests,
+  deleteUserRequest
 };
 

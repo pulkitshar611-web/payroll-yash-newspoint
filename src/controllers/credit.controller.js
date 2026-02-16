@@ -350,7 +350,7 @@ const getEmployerWallet = async (req, res, next) => {
       data: {
         employer_id,
         balance: parseFloat(wallet?.balance || 0),
-        currency: 'INR',
+        currency: 'USD',
         updated_at: wallet?.updated_at || new Date(),
       },
     });

@@ -162,9 +162,47 @@ const createCompanyRequest = async (req, res, next) => {
   } catch (error) { next(error); }
 };
 
+/**
+ * Create User Request (Public)
+ */
+const createRequest = async (req, res, next) => {
+  try {
+    const { name, address, city, state, country, mobile, request_type } = req.body;
+
+    if (!name || !address || !city || !state || !country || !mobile || !request_type) {
+      return res.status(400).json({
+        success: false,
+        message: 'All fields are required'
+      });
+    }
+
+    // Security: Block Admin Registration
+    if (request_type === 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Admin registration is restricted. Please contact support.'
+      });
+    }
+
+    const query = `
+            INSERT INTO user_requests (name, address, city, state, country, mobile, request_type)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `;
+
+    const [result] = await db.query(query, [name, address, city, state, country, mobile, request_type]);
+
+    res.status(201).json({
+      success: true,
+      message: 'Request submitted successfully',
+      data: { id: result.insertId }
+    });
+  } catch (error) { next(error); }
+};
+
 module.exports = {
   getAllJobs,
   getJobById,
   getActivePlans,
-  createCompanyRequest
+  createCompanyRequest,
+  createRequest
 };

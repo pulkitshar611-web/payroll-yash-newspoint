@@ -14,4 +14,7 @@ router.get('/plans', publicController.getActivePlans);
 // Company signup request
 router.post('/company-request', publicController.createCompanyRequest);
 
+// User registration request
+router.post('/user-request', publicController.createRequest);
+
 module.exports = router;

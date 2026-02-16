@@ -13,9 +13,12 @@ const employeeRoutes = require('./routes/employee.routes');
 const publicRoutes = require('./routes/public.routes');
 const vendorRoutes = require('./routes/vendor.routes');
 const creditRoutes = require('./routes/credit.routes');
-const jobseekerRoutes = require('./routes/jobseeker.routes'); // Added
+const jobseekerRoutes = require('./routes/jobseeker.routes');
+const profileRoutes = require('./routes/profile.routes');
+
 
 const app = express();
+// Force restart timestamp: Request Refactor Complete
 
 // Middlewares
 app.use(cors({
@@ -31,7 +34,6 @@ app.use(cors({
       callback(null, true);
     } else {
       callback(null, true); // Dev hack: allow all for now if errors persist
-      // callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
@@ -63,7 +65,8 @@ app.use('/api/employee', employeeRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/vendor', vendorRoutes);
 app.use('/api/credits', creditRoutes); // Employer credit routes
-app.use('/api/jobseeker', jobseekerRoutes); // Job Seeker Routes
+app.use('/api/jobseeker', jobseekerRoutes);
+app.use('/api/profile', profileRoutes);
 
 // 404 handler
 app.use((req, res) => {
