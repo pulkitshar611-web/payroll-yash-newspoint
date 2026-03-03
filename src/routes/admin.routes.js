@@ -24,6 +24,7 @@ router.post('/employers/:id/credit', adminController.addCredit);
 router.get('/credits/requests', adminController.getPendingCreditRequests);
 router.post('/credits/requests/:id/approve', adminController.approveCreditRequest);
 router.post('/credits/requests/:id/reject', adminController.rejectCreditRequest);
+router.post('/users/:id/toggle-status', adminController.toggleUserStatus);
 router.delete('/employers/:id', adminController.deleteEmployer);
 
 // Bill Company (Admin-only)

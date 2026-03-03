@@ -705,7 +705,8 @@ const addCredit = async (req, res, next) => {
         'INSERT INTO credits (employer_id, balance, total_added, total_used) VALUES (?, ?, ?, 0)',
         [employer.id, amt, amt]
       );
-      credit = newCredit[0];
+      const [newRows] = await db.query('SELECT * FROM credits WHERE id = ?', [result.insertId]);
+      credit = newRows[0];
     }
 
     // Log Transaction
@@ -2376,6 +2377,27 @@ const rejectCreditRequest = async (req, res, next) => {
   }
 };
 
+const toggleUserStatus = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body; // 'active' or 'blocked'
+
+    if (!['active', 'blocked'].includes(status)) {
+      return res.status(400).json({ success: false, message: 'Invalid status. Use active or blocked.' });
+    }
+
+    const [result] = await db.query('UPDATE users SET status = ?, updated_at = NOW() WHERE id = ?', [status, id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    res.json({ success: true, message: `User status updated to ${status}.` });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getDashboard,
   getDashboardSummary,
@@ -2441,5 +2463,6 @@ module.exports = {
   approveCreditRequest,
   rejectCreditRequest,
   getPendingCreditRequests,
+  toggleUserStatus,
 };
 

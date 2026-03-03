@@ -145,6 +145,16 @@ const login = async (req, res, next) => {
       });
     }
 
+    // CRITICAL: Prevent Admins from logging in via standard login route
+    // They MUST use the specialized admin/hidden login
+    if (user.role === 'admin' || user.role === 'superadmin') {
+      console.log(`[LOGIN] Blocked Admin login attempt via standard route: ${user.email}`);
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password.', // Keep message generic for security
+      });
+    }
+
     console.log(`[LOGIN] User found: ${user.email} (ID: ${user.id}, Role: ${user.role})`);
 
     // Check password
@@ -197,6 +207,50 @@ const login = async (req, res, next) => {
     });
   } catch (error) {
     console.error('[LOGIN] Error:', error.message);
+    next(error);
+  }
+};
+
+/**
+ * Admin Specialized Login
+ */
+const adminLogin = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: 'Email and password are required.' });
+    }
+
+    const [rows] = await db.query('SELECT * FROM users WHERE email = ? AND role IN ("admin", "superadmin")', [email.trim()]);
+    let user = rows[0];
+
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Invalid credentials.' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Invalid credentials.' });
+    }
+
+    if (user.status !== 'active') {
+      return res.status(403).json({ success: false, message: 'Admin account is inactive.' });
+    }
+
+    const tokens = generateTokens(user);
+    const redirectInfo = getLoginRedirect(user.role);
+
+    res.json({
+      success: true,
+      data: {
+        user: { id: user.id, name: user.name, email: user.email, role: user.role },
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        dashboardRoute: redirectInfo.dashboard
+      }
+    });
+  } catch (error) {
     next(error);
   }
 };
@@ -310,6 +364,7 @@ const changePassword = async (req, res, next) => {
 module.exports = {
   register,
   login,
+  adminLogin,
   refreshToken,
   logout,
   changePassword,

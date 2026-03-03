@@ -1533,6 +1533,15 @@ const paySalary = async (req, res, next) => {
     const payMonth = month || payDate.toLocaleString('default', { month: 'long' });
     const payYear = year || payDate.getFullYear();
 
+    // Check if balance is sufficient
+    if (parseFloat(credit.balance) < salaryAmount) {
+      await connection.rollback();
+      return res.status(400).json({
+        success: false,
+        message: `Insufficient credit balance. Required: ${salaryAmount}, Available: ${credit.balance}`,
+      });
+    }
+
     // 1. Create salary record
     const [salResult] = await connection.query(
       `INSERT INTO salary_records(employee_id, amount, payment_date, month, year, payment_method, status, notes, created_at, updated_at)
